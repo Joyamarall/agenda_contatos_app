@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Usuários{% endblock %}
+{% block conteudo %}
+<h1>Cadastros pendentes <small>({{ pendentes_lista | length }})</small></h1>
+
+{% if pendentes_lista %}
+<div class="tabela-wrap">
+  <table>
+    <thead>
+      <tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Solicitado em</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      {% for p in pendentes_lista %}
+      <tr>
+        <td>{{ p.nome }}</td>
+        <td>{{ p.login }}</td>
+        <td>{{ p.perfil }}</td>
+        <td>{{ p.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+        <td>
+          <form method="post" action="{{ url_for('aprovar_usuario', usuario_id=p.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-pequeno">Aprovar</button>
+          </form>
+          <form method="post" action="{{ url_for('recusar_usuario', usuario_id=p.id) }}"
+                onsubmit="return confirm('Recusar e remover esta solicitação?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-perigo btn-pequeno">Recusar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <p>Nenhuma solicitação pendente.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block titulo %}Contatos{% endblock %}
+{% block conteudo %}
+<div class="barra">
+  <h1>Contatos <small>({{ total }})</small></h1>
+  <div class="acoes">
+    {% if pode('inserir') %}
+      <a class="btn" href="{{ url_for('novo') }}">+ Novo contato</a>
+    {% endif %}
+    {% if pode('exportar') %}
+      <form method="post" action="{{ url_for('exportar') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="nome" value="{{ nome }}">
+        <input type="hidden" name="cargo" value="{{ cargo }}">
+        <button class="btn btn-claro">Exportar CSV</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+<form method="get" class="filtros">
+  <input name="nome" placeholder="Nome" value="{{ nome }}">
+  <input name="cargo" placeholder="Cargo" value="{{ cargo }}">
+  <button class="btn">Filtrar</button>
+  <a href="{{ url_for('listar') }}">Limpar</a>
+</form>
+
+{% if contatos %}
+<div class="tabela-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cargo</th>
+        <th>Nascimento</th><th>CPF</th>
+        {% if pode('editar') or pode('excluir') %}<th>Ações</th>{% endif %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in contatos %}
+      <tr>
+        <td>{{ c.nome }}</td>
+        <td>{{ c.email or '' }}</td>
+        <td>{{ c.telefone or '' }}</td>
+        <td>{{ c.cargo or '' }}</td>
+        <td>{{ c.data_nascimento | data_br }}</td>
+        <td>{{ c.cpf or '' }}</td>
+        {% if pode('editar') or pode('excluir') %}
+        <td>
+          {% if pode('editar') %}
+            <a href="{{ url_for('editar', contato_id=c.id) }}">Editar</a>
+          {% endif %}
+          {% if pode('excluir') %}
+            <form method="post" action="{{ url_for('excluir', contato_id=c.id) }}"
+                  onsubmit="return confirm('Excluir este contato?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-perigo btn-pequeno">Excluir</button>
+            </form>
+          {% endif %}
+        </td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<nav class="paginacao">
+  {% if pagina > 1 %}
+    <a href="{{ url_for('listar', nome=nome, cargo=cargo, pagina=pagina-1) }}">← Anterior</a>
+  {% endif %}
+  <span>Página {{ pagina }} de {{ total_paginas }}</span>
+  {% if pagina < total_paginas %}
+    <a href="{{ url_for('listar', nome=nome, cargo=cargo, pagina=pagina+1) }}">Próxima →</a>
+  {% endif %}
+</nav>
+{% else %}
+  <p>Nenhum contato encontrado.</p>
+{% endif %}
+{% endblock %}

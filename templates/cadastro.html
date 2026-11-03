@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block titulo %}Criar acesso{% endblock %}
+{% block conteudo %}
+<div class="cartao login-pagina">
+  <h1>Criar acesso</h1>
+  <form method="post" class="formulario-simples">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Nome completo
+      <input name="nome" value="{{ nome }}" required autofocus autocomplete="name">
+    </label>
+    <label>Login
+      <input name="login" value="{{ login }}" required autocomplete="username"
+             pattern="[a-z0-9._\-]{3,50}"
+             title="3 a 50 caracteres: letras minúsculas, números, ponto, hífen ou sublinhado">
+    </label>
+    <label>Senha (mínimo 8 caracteres)
+      <input name="senha" type="password" required minlength="8" maxlength="72"
+             autocomplete="new-password">
+    </label>
+    <label>Confirme a senha
+      <input name="confirmar" type="password" required minlength="8" maxlength="72"
+             autocomplete="new-password">
+    </label>
+    <button class="btn">Criar acesso</button>
+    <p>Já tem conta? <a href="{{ url_for('login') }}">Entrar</a></p>
+  </form>
+</div>
+{% endblock %}

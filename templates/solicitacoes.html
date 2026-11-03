@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block titulo %}Solicitações{% endblock %}
+{% block conteudo %}
+<h1>Solicitações</h1>
+
+<div class="abas">
+  <a class="aba {{ 'ativa' if aba == 'cadastros' }}"
+     href="{{ url_for('solicitacoes', aba='cadastros') }}">
+    Cadastros pendentes{% if n_cad %} ({{ n_cad }}){% endif %}</a>
+  <a class="aba {{ 'ativa' if aba == 'abertos' }}"
+     href="{{ url_for('solicitacoes', aba='abertos') }}">
+    Chamados abertos{% if n_ab %} ({{ n_ab }}){% endif %}</a>
+  <a class="aba {{ 'ativa' if aba == 'resolvidos' }}"
+     href="{{ url_for('solicitacoes', aba='resolvidos') }}">
+    Chamados resolvidos</a>
+</div>
+
+{% if aba == 'cadastros' %}
+  {% if cadastros %}
+  <div class="tabela-wrap">
+    <table>
+      <thead>
+        <tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Solicitado em</th><th>Ações</th></tr>
+      </thead>
+      <tbody>
+        {% for p in cadastros %}
+        <tr>
+          <td>{{ p.nome }}</td>
+          <td>{{ p.login }}</td>
+          <td>{{ p.perfil }}</td>
+          <td>{{ p.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
+          <td>
+            <form method="post" action="{{ url_for('aprovar_usuario', usuario_id=p.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-pequeno">Aprovar</button>
+            </form>
+            <form method="post" action="{{ url_for('recusar_usuario', usuario_id=p.id) }}"
+                  onsubmit="return confirm('Recusar e remover esta solicitação?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-perigo btn-pequeno">Recusar</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p>Nenhum cadastro pendente.</p>
+  {% endif %}
+
+{% else %}
+  {% if lista_chamados %}
+    {% for c in lista_chamados %}
+    <div class="cartao chamado">
+      <div class="chamado-topo">
+        <strong>#{{ c.id }} · {{ c.assunto }}</strong>
+        <span class="selo {{ c.status }}">{{ 'Aberto' if c.status == 'aberto' else 'Resolvido' }}</span>
+      </div>
+      <small>{{ c.categoria }} · {{ c.nome }} ({{ c.login }}, {{ c.perfil }})
+        · {{ c.criado_em.strftime('%d/%m/%Y %H:%M') }}</small>
+      <p class="msg">{{ c.mensagem }}</p>
+
+      {% if c.status == 'aberto' %}
+      <form method="post" class="formulario-simples"
+            action="{{ url_for('responder_chamado', chamado_id=c.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label>Resposta
+          <textarea name="resposta" rows="3" required maxlength="2000"></textarea>
+        </label>
+        <button class="btn btn-pequeno">Responder e resolver</button>
+      </form>
+      {% else %}
+      <div class="resposta">
+        <strong>Respondido por {{ c.respondido_por }}</strong>
+        <small>({{ c.respondido_em.strftime('%d/%m/%Y %H:%M') }})</small>
+        <p class="msg">{{ c.resposta }}</p>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <p>Nenhum chamado {{ 'aberto' if aba == 'abertos' else 'resolvido' }}.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

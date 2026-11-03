@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Agenda de Contatos{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilo.css') }}">
+</head>
+<body>
+  {% if usuario %}
+  <header class="topo">
+    <strong>Agenda de Contatos</strong>
+    <nav>
+      <a href="{{ url_for('listar') }}">Contatos</a>
+      {% if pode('ver_auditoria') %}
+        <a href="{{ url_for('auditoria') }}">Auditoria</a>
+      {% endif %}
+            {% if pode('abrir_chamado') %}
+        <a href="{{ url_for('meus_chamados') }}">Meus chamados</a>
+      {% endif %}
+      {% if pode('gerenciar_chamados') %}
+        <a href="{{ url_for('solicitacoes') }}">Solicitações{% if pendentes %} ({{ pendentes }}){% endif %}</a>
+      {% endif %}
+    </nav>
+    <form method="post" action="{{ url_for('logout') }}" class="sair">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <span>{{ usuario.nome }} ({{ usuario.perfil }})</span>
+      <button class="btn btn-claro">Sair</button>
+    </form>
+  </header>
+  {% endif %}
+
+  <main>
+    {% with mensagens = get_flashed_messages(with_categories=true) %}
+      {% for categoria, texto in mensagens %}
+        <div class="aviso {{ categoria }}">{{ texto }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

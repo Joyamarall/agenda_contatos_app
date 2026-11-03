@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block conteudo %}
+<h1>{{ titulo }}</h1>
+<form method="post" class="cartao formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <label>Nome *
+    <input name="nome" value="{{ contato.nome or '' }}" required>
+  </label>
+  <label>E-mail
+    <input name="email" type="email" value="{{ contato.email or '' }}">
+  </label>
+  <label>Telefone
+    <input name="telefone" value="{{ contato.telefone or '' }}">
+  </label>
+  <label>Cargo
+    <input name="cargo" value="{{ contato.cargo or '' }}">
+  </label>
+  <label>Data de nascimento
+    <input name="data_nascimento" type="date"
+           value="{{ contato.data_nascimento | data_iso }}">
+  </label>
+  <label>CPF
+    <input name="cpf" placeholder="000.000.000-00" value="{{ contato.cpf or '' }}">
+  </label>
+  <label>Endereço
+    <input name="endereco" value="{{ contato.endereco or '' }}">
+  </label>
+
+  <button class="btn">Salvar</button>
+  <a href="{{ url_for('listar') }}">Cancelar</a>
+</form>
+{% endblock %}

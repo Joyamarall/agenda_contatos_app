@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Auditoria{% endblock %}
+{% block conteudo %}
+<h1>Auditoria <small>(últimos 100 registros)</small></h1>
+<div class="tabela-wrap">
+  <table>
+    <thead>
+      <tr><th>Data/hora</th><th>Usuário</th><th>Ação</th><th>Tabela</th>
+          <th>Registro</th><th>Detalhes</th></tr>
+    </thead>
+    <tbody>
+      {% for r in registros %}
+      <tr>
+        <td>{{ r.data_hora.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+        <td>{{ r.usuario }}</td>
+        <td>{{ r.acao }}</td>
+        <td>{{ r.tabela }}</td>
+        <td>{{ r.registro_id or '' }}</td>
+        <td>
+          {% if r.dados_antes or r.dados_depois %}
+          <details>
+            <summary>Ver</summary>
+            {% if r.dados_antes %}
+              <strong>Antes</strong><pre>{{ r.dados_antes | json_legivel }}</pre>
+            {% endif %}
+            {% if r.dados_depois %}
+              <strong>Depois</strong><pre>{{ r.dados_depois | json_legivel }}</pre>
+            {% endif %}
+          </details>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block titulo %}Meus chamados{% endblock %}
+{% block conteudo %}
+<h1>Meus chamados</h1>
+
+<form method="post" class="cartao formulario">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <h2>Abrir novo chamado</h2>
+  <label>Categoria
+    <select name="categoria" required>
+      <option value="">Selecione...</option>
+      {% for c in categorias %}
+        <option value="{{ c }}" {% if c == categoria %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>Assunto
+    <input name="assunto" value="{{ assunto }}" required maxlength="100"
+           placeholder="Ex.: Não consigo exportar os contatos">
+  </label>
+  <label>Descreva o problema
+    <textarea name="mensagem" rows="5" required maxlength="2000">{{ mensagem }}</textarea>
+  </label>
+  <p class="dica">Não informe senhas nem dados pessoais de terceiros.</p>
+  <button class="btn">Enviar chamado</button>
+</form>
+
+<h2>Histórico</h2>
+{% if chamados_lista %}
+  {% for c in chamados_lista %}
+  <div class="cartao chamado">
+    <div class="chamado-topo">
+      <strong>#{{ c.id }} · {{ c.assunto }}</strong>
+      <span class="selo {{ c.status }}">{{ 'Aberto' if c.status == 'aberto' else 'Resolvido' }}</span>
+    </div>
+    <small>{{ c.categoria }} · aberto em {{ c.criado_em.strftime('%d/%m/%Y %H:%M') }}</small>
+    <p class="msg">{{ c.mensagem }}</p>
+    {% if c.resposta %}
+    <div class="resposta">
+      <strong>Resposta do administrador</strong>
+      <small>({{ c.respondido_em.strftime('%d/%m/%Y %H:%M') }})</small>
+      <p class="msg">{{ c.resposta }}</p>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+{% else %}
+  <p>Você ainda não abriu chamados.</p>
+{% endif %}
+{% endblock %}
